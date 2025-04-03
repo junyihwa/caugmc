@@ -3,38 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>이미지 호스팅</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
-        #preview { margin-top: 20px; display: none; }
-        img { max-width: 100%; height: auto; }
-    </style>
+    <title>이미지 업로드 & 공유</title>
 </head>
 <body>
-    <h2>간단한 이미지 호스팅</h2>
-    <input type="file" id="imageInput" accept="image/*">
+    <h2>이미지 업로드</h2>
+    <input type="file" id="imageInput">
     <button onclick="uploadImage()">업로드</button>
-    <div id="preview">
+
+    <div id="preview" style="display:none;">
         <h3>업로드된 이미지:</h3>
-        <img id="uploadedImage" src="" alt="업로드된 이미지">
-        <p>공유 링크: <a id="imageLink" href="#" target="_blank"></a></p>
+        <img id="uploadedImage" src="" style="max-width: 100%;">
+        <p>이미지 URL: <a id="imageLink" href="#" target="_blank"></a></p>
     </div>
 
     <script>
         function uploadImage() {
             const input = document.getElementById('imageInput');
             const file = input.files[0];
-            if (!file) { alert('이미지를 선택하세요!'); return; }
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const imageUrl = e.target.result;
-                document.getElementById('uploadedImage').src = imageUrl;
-                document.getElementById('imageLink').href = imageUrl;
-                document.getElementById('imageLink').textContent = imageUrl;
-                document.getElementById('preview').style.display = 'block';
-            };
-            reader.readAsDataURL(file);
+            if (!file) return alert("파일을 선택하세요!");
+
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("upload_preset", "caughs"); // Cloudinary에서 만든 Preset 이름
+
+            fetch("https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.secure_url) { 
+                    document.getElementById("uploadedImage").src = data.secure_url;
+                    document.getElementById("imageLink").href = data.secure_url;
+                    document.getElementById("imageLink").textContent = data.secure_url;
+                    document.getElementById("preview").style.display = "block";
+                } else {
+                    console.error("Cloudinary 응답 오류:", data);
+                    alert("이미지 업로드 실패! Cloudinary 설정을 확인하세요.");
+                }
+            })
+            .catch(error => console.error("업로드 실패:", error));
         }
     </script>
 </body>
