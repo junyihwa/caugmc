@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이미지 호스팅</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        #preview { margin-top: 20px; display: none; }
+        img { max-width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+    <h2>간단한 이미지 호스팅</h2>
+    <input type="file" id="imageInput" accept="image/*">
+    <button onclick="uploadImage()">업로드</button>
+    <div id="preview">
+        <h3>업로드된 이미지:</h3>
+        <img id="uploadedImage" src="" alt="업로드된 이미지">
+        <p>공유 링크: <a id="imageLink" href="#" target="_blank"></a></p>
+    </div>
+
+    <script>
+        function uploadImage() {
+            const input = document.getElementById('imageInput');
+            const file = input.files[0];
+            if (!file) { alert('이미지를 선택하세요!'); return; }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageUrl = e.target.result;
+                document.getElementById('uploadedImage').src = imageUrl;
+                document.getElementById('imageLink').href = imageUrl;
+                document.getElementById('imageLink').textContent = imageUrl;
+                document.getElementById('preview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>
